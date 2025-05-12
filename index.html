@@ -8,13 +8,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .accordion-content {
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            height: 0;
             overflow: hidden;
+            transition: height 0.3s ease-out;
         }
-        .accordion-content[aria-hidden="true"] { max-height: 0; padding: 0; }
-        .accordion-content[aria-hidden="false"] { max-height: 2000px; padding: 1rem; }
-        .accordion-button svg { transition: transform 0.3s ease; }
-        .accordion-button[aria-expanded="true"] svg { transform: rotate(180deg); }
+        .accordion-content.open {
+            height: auto;
+            padding: 1rem;
+        }
+        .accordion-button svg {
+            transition: transform 0.3s ease;
+        }
+        .accordion-button.open svg {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -191,28 +198,41 @@
             const div = document.createElement('div');
             div.className = 'border-b border-gray-200';
             div.innerHTML = `
-                <button class="accordion-button w-full text-left py-4 flex justify-between items-center focus:outline-none" aria-expanded="false" aria-controls="answer-${index + 1}" onclick="toggleAccordion(this)">
+                <button class="accordion-button w-full text-left py-4 flex justify-between items-center focus:outline-none">
                     <span class="text-lg font-medium text-gray-800">${index + 1}. ${item.q}</span>
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
-                <div id="answer-${index + 1}" class="accordion-content px-4 text-gray-600" aria-hidden="true">
+                <div id="answer-${index + 1}" class="accordion-content px-4 text-gray-600">
                     ${item.a}
                 </div>
             `;
             accordion.appendChild(div);
         });
 
-        function toggleAccordion(button) {
-            const isExpanded = button.getAttribute('aria-expanded') === 'true';
-            const contentId = button.getAttribute('aria-controls');
-            const content = document.getElementById(contentId);
+        // Attach event listeners to all accordion buttons
+        document.querySelectorAll('.accordion-button').forEach(button => {
+            button.addEventListener('click', function() {
+                console.log('Button clicked:', button);
 
-            // Toggle the aria-expanded attribute on the button
-            button.setAttribute('aria-expanded', !isExpanded);
+                // Find the associated content
+                const content = button.nextElementSibling;
+                console.log('Content found:', content);
 
-            // Toggle the aria-hidden attribute on the content
-            content.setAttribute('aria-hidden', isExpanded ? 'true' : 'false');
-        }
+                // Toggle the 'open' class on the button and content
+                const isOpen = button.classList.contains('open');
+                console.log('Is open:', isOpen);
+
+                if (isOpen) {
+                    button.classList.remove('open');
+                    content.classList.remove('open');
+                    console.log('Closing accordion');
+                } else {
+                    button.classList.add('open');
+                    content.classList.add('open');
+                    console.log('Opening accordion');
+                }
+            });
+        });
     </script>
 </body>
 </html>
